@@ -8,8 +8,8 @@ require(reshape)
 
 # TODO
 # split jokes in HTML paragraphs
-# refine graph output
-# reread instructions
+# publish on shiny server
+# rewrite instructions
 
 positive.terms <- terms_in_General_Inquirer_categories("Positiv")
 negative.terms <- terms_in_General_Inquirer_categories("Negativ")
@@ -49,7 +49,9 @@ shinyServer(function(input, output) {
             direction.of.mood=c("Positive","Negative"),
             score=scores)
         p <- ggplot(df, aes(direction.of.mood, score))
-        p <- p + geom_bar(stat="identity", fill=c("green","red"))
+        p <- p + geom_bar(stat="identity", fill=c("red","green"))
+        p <- p + labs(title="Scores")
+        p <- p + xlab("Direction of mood")
         print(p)
         
     })

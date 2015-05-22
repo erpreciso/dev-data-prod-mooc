@@ -14,7 +14,10 @@ shinyUI(fluidPage(
             sliderInput(inputId="slider", label="Opinions returned",
                         min=10, max=50, value=20),
             # submit button to generate request
-            actionButton("action", "Go!")
+            actionButton("action", "Go!"),
+            h6("A special thanks to ",
+               a("ICNb.com", href="http://www.icndb.com/"),
+               ", the Internet Chuck Norris Database")
         ),
         mainPanel(
             fluidRow(
@@ -22,7 +25,7 @@ shinyUI(fluidPage(
                     textOutput("jokes")
                 ),
                 column(5,
-                    plotOutput("plot")
+                    plotOutput("plot", width = "100%", height = "400")
                 )
             )
         )
