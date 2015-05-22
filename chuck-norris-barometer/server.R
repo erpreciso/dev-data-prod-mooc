@@ -7,7 +7,6 @@ require(ggplot2)
 require(reshape)
 
 # TODO
-# split jokes in HTML paragraphs
 # publish on shiny server
 # rewrite instructions
 
@@ -15,10 +14,23 @@ positive.terms <- terms_in_General_Inquirer_categories("Positiv")
 negative.terms <- terms_in_General_Inquirer_categories("Negativ")
 
 create.jokes.list <- function(number.of.jokes) {
-    cn.url <- paste("http://api.icndb.com/jokes/random/", number.of.jokes, sep="")
+    cn.url <- paste("http://api.icndb.com/jokes/random/",
+                    number.of.jokes,
+                    "?escape=javascript",
+                    sep="")
     t <- fromJSON(getURL(cn.url))
-    lapply(1:number.of.jokes, function(i) as.character(t$value[[i]]$joke))
+    lapply(1:number.of.jokes, FUN=function(i) t$value[[i]]$joke)
 }
+
+format.jokes.list <- function(jokes) {
+    # function to format in html a single joke
+    small.html.p <- function(indx, txt) {
+        c <- "font-size: 10px; font-weight: 500; line-height: 1.1;"
+        p(paste(indx, " - ", txt), style=c)
+    }
+    lapply(1:length(jokes), FUN=function(i) small.html.p(i, jokes[[i]]))
+}
+
 measure.sentiment.level <- function(jokes.list) {
     positive.score <- 0
     negative.score <- 0
@@ -32,16 +44,18 @@ measure.sentiment.level <- function(jokes.list) {
 }
 
 shinyServer(function(input, output) {
-    n <- 20
+    n <- 10
     jokes <- list()
+    formatted.jokes <- list()
     jokes.input <- reactive({
         n  <<- round(input$slider/1, digits=0)
         jokes <<- create.jokes.list(n)
+        formatted.jokes <<- format.jokes.list(jokes)
     })
-    output$jokes <- renderText({
+    output$jokes <- renderUI({
         jokes.input()
-        unlist(jokes)
-        })
+        return(formatted.jokes)
+    })
     output$plot <- renderPlot({
         jokes.input()
         scores <- measure.sentiment.level(jokes)

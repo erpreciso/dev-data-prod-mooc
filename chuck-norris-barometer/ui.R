@@ -12,7 +12,7 @@ shinyUI(fluidPage(
             h4("Define how many can live enough to give an opinion"),
             # slider to select how many request
             sliderInput(inputId="slider", label="Opinions returned",
-                        min=10, max=50, value=20),
+                        min=10, max=50, value=10),
             # submit button to generate request
             actionButton("action", "Go!"),
             h6("A special thanks to ",
@@ -22,7 +22,7 @@ shinyUI(fluidPage(
         mainPanel(
             fluidRow(
                 column(5,
-                    textOutput("jokes")
+                    htmlOutput("jokes")
                 ),
                 column(5,
                     plotOutput("plot", width = "100%", height = "400")
