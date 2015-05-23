@@ -1,8 +1,7 @@
 require(shiny)
 require(RCurl)
 require(RJSONIO)
-
-
+require(markdown)
 
 shinyUI(fluidPage(
     titlePanel("Chuck Norris Barometer"),
