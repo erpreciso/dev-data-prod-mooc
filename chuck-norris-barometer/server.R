@@ -1,17 +1,13 @@
 require(shiny)
-# install.packages("tm.lexicon.GeneralInquirer", repos="http://datacube.wu.ac.at", type="source")
 require(tm)
-require("tm.lexicon.GeneralInquirer")
 require(RCurl)
 require(ggplot2)
 require(reshape)
+require(qdap)
 
 # TODO
 # publish on shiny server
 # rewrite instructions
-
-positive.terms <- terms_in_General_Inquirer_categories("Positiv")
-negative.terms <- terms_in_General_Inquirer_categories("Negativ")
 
 create.jokes.list <- function(number.of.jokes) {
     cn.url <- paste("http://api.icndb.com/jokes/random/",
@@ -25,22 +21,19 @@ create.jokes.list <- function(number.of.jokes) {
 format.jokes.list <- function(jokes) {
     # function to format in html a single joke
     small.html.p <- function(indx, txt) {
-        c <- "font-size: 10px; font-weight: 500; line-height: 1.1;"
+        c <- "font-size: 11px; font-weight: 500; line-height: 1.1;"
         p(paste(indx, " - ", txt), style=c)
     }
     lapply(1:length(jokes), FUN=function(i) small.html.p(i, jokes[[i]]))
 }
 
 measure.sentiment.level <- function(jokes.list) {
-    positive.score <- 0
-    negative.score <- 0
+    # return polarity obj
+    df <- data.frame(joke=vector(mode="character"))
     for (joke in jokes.list) {
-        positive.score <- positive.score + tm_term_score(
-            PlainTextDocument(joke), positive.terms)
-        negative.score <- negative.score + tm_term_score(
-            PlainTextDocument(joke), negative.terms)
+        df <- rbind(df, data.frame(joke=joke))
     }
-    return(c(positive.score, negative.score))
+    return(polarity(df$joke))
 }
 
 shinyServer(function(input, output) {
@@ -58,14 +51,16 @@ shinyServer(function(input, output) {
     })
     output$plot <- renderPlot({
         jokes.input()
-        scores <- measure.sentiment.level(jokes)
-        df <- data.frame(
-            direction.of.mood=c("Positive","Negative"),
-            score=scores)
-        p <- ggplot(df, aes(direction.of.mood, score))
-        p <- p + geom_bar(stat="identity", fill=c("red","green"))
-        p <- p + labs(title="Scores")
-        p <- p + xlab("Direction of mood")
+        jokes.polarity <- measure.sentiment.level(jokes)
+        j.p.df <- jokes.polarity$all
+        p <- ggplot(j.p.df, aes(x=polarity)) + geom_density()
+        p <- p + geom_vline(xintercept=0, colour="black", size=1)
+        center.labels <- 0.3
+        p <- p + geom_text(data=NULL, x=center.labels, y=0.5,
+                           label = "Positive Mood", colour="green")
+        p <- p + geom_text(data=NULL, x=-center.labels, y=0.5,
+                           label = "Negative Mood", colour="red")
+        p <- p + ggtitle("Fact Pool Polarity")
         print(p)
         
     })

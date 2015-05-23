@@ -5,29 +5,30 @@ require(RJSONIO)
 
 
 shinyUI(fluidPage(
-    titlePanel("Are people discussing Chuck Norris positively, or negatively?"),
+    titlePanel("Is Chuck Norris good or bad?"),
     sidebarLayout(position="left",
         sidebarPanel(
-            h4("Simulate a Chuck Norris simpose, and measure if the mood is positive or negative."),
-            h4("Define how many can live enough to give an opinion"),
-            # slider to select how many request
-            sliderInput(inputId="slider", label="Opinions returned",
+            h4("Choose a number of facts you'd like to analyze."),
+            sliderInput(inputId="slider", label="Facts pool size",
                         min=10, max=50, value=10),
-            # submit button to generate request
-            actionButton("action", "Go!"),
-            h6("A special thanks to ",
-               a("ICNb.com", href="http://www.icndb.com/"),
-               ", the Internet Chuck Norris Database")
+            h5(em(strong("Fact"), ": satirical factoids about martial artist and actor Chuck Norris that have become an Internet phenomenon and as a result have become widespread in popular culture.")),
+            h6(em("From",a("Wikipedia", href="https://en.wikipedia.org/wiki/Chuck_Norris_facts"))),
+            h5("A special thanks to ",
+               a("ICNDb.com", href="http://www.icndb.com/"),
+               ", the Internet Chuck Norris Database"),
+            width=3
         ),
         mainPanel(
             fluidRow(
-                column(5,
+                column(8,
+                    h3("Facts Pool"),
                     htmlOutput("jokes")
                 ),
-                column(5,
-                    plotOutput("plot", width = "100%", height = "400")
+                column(4,
+                    plotOutput("plot")
                 )
-            )
+            ),
+            width=9
         )
         
     )
